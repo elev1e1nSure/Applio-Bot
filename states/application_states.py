@@ -10,3 +10,8 @@ class ApplicationSteps(StatesGroup):
     contact = State()
     purpose = State()
 
+
+class AdminStates(StatesGroup):
+    """Admin management states."""
+    waiting_for_admin_id = State()
+

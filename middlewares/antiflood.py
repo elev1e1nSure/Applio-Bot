@@ -2,15 +2,20 @@
 Anti-flood middleware to prevent spam.
 Implements cooldown mechanism for application submissions.
 """
-from typing import Callable, Dict, Any, Awaitable
-from datetime import datetime, timedelta
+import logging
+from datetime import datetime
+from typing import Any, Awaitable, Callable, Dict
+
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject, Message
-from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.types import Message, TelegramObject
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from config import APP_COOLDOWN_SECONDS
 from db.models import User
-from locales.strings import get_string, LANG_EN
+from locales.strings import LANG_EN, get_string
+
+logger = logging.getLogger(__name__)
 
 
 class AntiFloodMiddleware(BaseMiddleware):
@@ -64,6 +69,9 @@ class AntiFloodMiddleware(BaseMiddleware):
             if time_diff.total_seconds() < APP_COOLDOWN_SECONDS:
                 remaining = int(APP_COOLDOWN_SECONDS - time_diff.total_seconds())
                 language = user.language or LANG_EN
+                logger.info(
+                    f"User {user_id} blocked by antiflood, {remaining}s remaining"
+                )
                 await event.answer(
                     get_string(language, "cooldown_active", seconds=remaining)
                 )

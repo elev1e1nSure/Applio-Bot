@@ -2,13 +2,14 @@
 Handler for cancel button that works globally.
 This router should be registered last to not interfere with other handlers.
 """
-from aiogram import Router, F
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
-from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.types import Message, ReplyKeyboardRemove
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from db.models import User
-from locales.strings import get_string, LANG_EN
+from locales.strings import LANG_EN, get_string
 
 router = Router()
 
@@ -43,8 +44,9 @@ async def handle_cancel_button(message: Message, state: FSMContext, session: Asy
             reply_markup=ReplyKeyboardRemove()
         )
     else:
-        # User is not in any state, just remove keyboard silently
+        # User is not in any state, just hide keyboard silently
         await message.answer(
+            "👌",
             reply_markup=ReplyKeyboardRemove()
         )
 

@@ -1,20 +1,26 @@
 """
 Handlers for application submission process.
 """
-from aiogram import Router, F, Bot
-from aiogram.types import Message, ReplyKeyboardRemove
+import logging
+import re
+from datetime import datetime
+
+from aiogram import Bot, F, Router
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from datetime import datetime
-import re
-from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.types import CallbackQuery, Message, ReplyKeyboardRemove
 from sqlalchemy import select
-from db.models import User, Application, ApplicationStatus
-from states.application_states import ApplicationSteps
-from locales.strings import get_string, LANG_EN
-from keyboards.common_kb import get_cancel_keyboard
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from config import ADMIN_ID
+from db.manager import get_all_admins, get_user
+from db.models import Application, ApplicationStatus, User
 from keyboards.admin_kb import get_application_actions_keyboard
+from keyboards.user_kb import get_cancel_keyboard, get_contact_step_keyboard
+from locales.strings import LANG_EN, get_string
+from states.application_states import ApplicationSteps
+
+logger = logging.getLogger(__name__)
 
 NAME_REGEX = re.compile(r"^[A-Za-zА-Яа-яЁё\s\-']{2,100}$")
 PHONE_REGEX = re.compile(r"^\+?\d{7,15}$")
@@ -31,6 +37,37 @@ async def get_admin_language(session: AsyncSession) -> str:
     return user.language if user else LANG_EN
 
 router = Router()
+
+
+@router.callback_query(F.data == "continue_with_telegram", ApplicationSteps.contact)
+async def process_telegram_contact(
+    callback: CallbackQuery,
+    state: FSMContext,
+    session: AsyncSession
+):
+    """
+    Handle 'Continue with Telegram' button press.
+    Uses user's Telegram username or ID as contact.
+    """
+    user_id = callback.from_user.id
+    username = callback.from_user.username
+
+    # Get user language
+    result = await session.execute(
+        select(User).where(User.user_id == user_id)
+    )
+    user = result.scalar_one_or_none()
+    language = user.language if user else LANG_EN
+
+    # Use username if available, otherwise use user ID
+    contact_value = f"@{username}" if username else f"tg://user?id={user_id}"
+
+    await state.update_data(contact=contact_value)
+    await state.set_state(ApplicationSteps.purpose)
+
+    await callback.message.edit_reply_markup(reply_markup=None)
+    await callback.message.answer(get_string(language, "step_3_of_3"))
+    await callback.answer()
 
 
 @router.message(Command("apply"))
@@ -91,7 +128,10 @@ async def process_name(message: Message, state: FSMContext, session: AsyncSessio
     
     await state.update_data(name=message.text.strip())
     await state.set_state(ApplicationSteps.contact)
-    await message.answer(get_string(language, "step_2_of_3"))
+    await message.answer(
+        get_string(language, "step_2_of_3"),
+        reply_markup=get_contact_step_keyboard(language)
+    )
 
 
 @router.message(ApplicationSteps.contact)
@@ -189,25 +229,29 @@ async def process_purpose(message: Message, state: FSMContext, session: AsyncSes
     await session.refresh(application)
     await state.clear()
     
-    # Notify admin about new application
+    # Notify all admins about new application
     try:
-        admin_language = await get_admin_language(session)
-        admin_text = (
-            f"{get_string(admin_language, 'new_application_title').replace('{id}', str(application.id))}\n\n"
-            f"👤 <b>{get_string(admin_language, 'field_name')}:</b> {application.name}\n"
-            f"📞 <b>{get_string(admin_language, 'field_contact')}:</b> {application.contact}\n"
-            f"📄 <b>{get_string(admin_language, 'field_purpose')}:</b> {application.purpose}\n\n"
-            f"🕐 <b>{get_string(admin_language, 'field_submitted')}:</b> {application.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
-        )
-        await bot.send_message(
-            ADMIN_ID,
-            admin_text,
-            reply_markup=get_application_actions_keyboard(application.id, admin_language)
-        )
+        admin_ids = await get_all_admins(session)
+        for admin_id in admin_ids:
+            try:
+                admin_user = await get_user(session, admin_id)
+                admin_language = admin_user.language if admin_user else LANG_EN
+                admin_text = (
+                    f"{get_string(admin_language, 'new_application_title').replace('{id}', str(application.id))}\n\n"
+                    f"👤 <b>{get_string(admin_language, 'field_name')}:</b> {application.name}\n"
+                    f"📞 <b>{get_string(admin_language, 'field_contact')}:</b> {application.contact}\n"
+                    f"📄 <b>{get_string(admin_language, 'field_purpose')}:</b> {application.purpose}\n\n"
+                    f"🕐 <b>{get_string(admin_language, 'field_submitted')}:</b> {application.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+                )
+                await bot.send_message(
+                    admin_id,
+                    admin_text,
+                    reply_markup=get_application_actions_keyboard(application.id, admin_language)
+                )
+            except Exception:
+                pass  # Admin blocked bot or other error
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.error(f"Failed to notify admin about new application: {e}", exc_info=True)
+        logger.error(f"Failed to notify admins about new application: {e}", exc_info=True)
     
     await message.answer(
         get_string(language, "application_received"),

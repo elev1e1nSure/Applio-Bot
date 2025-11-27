@@ -45,7 +45,8 @@ STRINGS: Dict[str, Dict[str, str]] = {
         "step_2_of_3": "<b>📝 Step 2 of 3</b>\n\n"
                        "Thank you! Now please provide your contact information.\n\n"
                        "➡️ Please enter your <b>contact information</b>:\n"
-                       "(Email, Phone, or Telegram username)",
+                       "(Email, Phone, or Telegram username)\n\n"
+                       "💡 <i>Or click the button below to use your Telegram account.</i>",
         "step_3_of_3": "<b>📝 Step 3 of 3</b>\n\n"
                        "Almost done! Please describe the purpose of your request.\n\n"
                        "➡️ Please enter the <b>purpose</b> of your application:",
@@ -113,6 +114,42 @@ STRINGS: Dict[str, Dict[str, str]] = {
         "btn_reject": "❌ Reject",
         "btn_back_to_list": "🔙 Back to List",
         "btn_back_to_menu": "🔙 Back to Menu",
+        
+        # User buttons
+        "btn_continue_telegram": "📱 Continue with Telegram",
+        
+        # Admin welcome
+        "admin_welcome": "🔐 <b>Admin Notice</b>\n\n"
+                         "You have administrator privileges.\n"
+                         "Use /admin to open the admin panel.",
+        
+        # Applications list
+        "applications_list_title": "📋 <b>Pending Applications</b>\n\n"
+                                   "Select an application to review:",
+        "app_list_item": "{num}. {name}",
+        "view_app_title": "📋 <b>Application #{id}</b>",
+        "processed_by_admin": "Processed by Admin ID: {admin_id}",
+        
+        # Admin management
+        "btn_manage_admins": "👥 Manage Admins",
+        "admin_management_title": "👥 <b>Admin Management</b>\n\n"
+                                  "Current administrators:",
+        "admin_list_main": "👑 {user_id} (Main Admin)",
+        "admin_list_item": "👤 {user_id}",
+        "no_additional_admins": "No additional administrators.",
+        "btn_add_admin": "➕ Add Admin",
+        "btn_remove_admin": "➖ Remove Admin",
+        "add_admin_prompt": "👤 <b>Add New Admin</b>\n\n"
+                            "Send the Telegram User ID of the new administrator.\n\n"
+                            "💡 <i>To get User ID, use @getmy_idbot</i>",
+        "remove_admin_prompt": "👤 <b>Remove Admin</b>\n\n"
+                               "Select an administrator to remove:",
+        "admin_added": "✅ Admin <b>{user_id}</b> has been added successfully.",
+        "admin_removed": "✅ Admin <b>{user_id}</b> has been removed.",
+        "admin_already_exists": "⚠️ This user is already an administrator.",
+        "admin_invalid_id": "⚠️ Invalid User ID. Please enter a valid number.",
+        "admin_cannot_remove_main": "⚠️ Cannot remove the main administrator.",
+        "admin_not_found": "⚠️ Administrator not found.",
     },
     LANG_RU: {
         # Welcome and start
@@ -143,7 +180,8 @@ STRINGS: Dict[str, Dict[str, str]] = {
         "step_2_of_3": "<b>📝 Шаг 2 из 3</b>\n\n"
                        "Спасибо! Теперь, пожалуйста, предоставьте вашу контактную информацию.\n\n"
                        "➡️ Пожалуйста, введите вашу <b>контактную информацию</b>:\n"
-                       "(Email, Телефон или Telegram username)",
+                       "(Email, Телефон или Telegram username)\n\n"
+                       "💡 <i>Или нажмите кнопку ниже, чтобы использовать ваш Telegram аккаунт.</i>",
         "step_3_of_3": "<b>📝 Шаг 3 из 3</b>\n\n"
                        "Почти готово! Пожалуйста, опишите цель вашего запроса.\n\n"
                        "➡️ Пожалуйста, введите <b>цель</b> вашей заявки:",
@@ -211,6 +249,42 @@ STRINGS: Dict[str, Dict[str, str]] = {
         "btn_reject": "❌ Отклонить",
         "btn_back_to_list": "🔙 Назад к списку",
         "btn_back_to_menu": "🔙 Назад в меню",
+        
+        # User buttons
+        "btn_continue_telegram": "📱 Продолжить с Telegram",
+        
+        # Admin welcome
+        "admin_welcome": "🔐 <b>Уведомление для администратора</b>\n\n"
+                         "У вас есть права администратора.\n"
+                         "Используйте /admin для открытия панели управления.",
+        
+        # Applications list
+        "applications_list_title": "📋 <b>Ожидающие заявки</b>\n\n"
+                                   "Выберите заявку для просмотра:",
+        "app_list_item": "{num}. {name}",
+        "view_app_title": "📋 <b>Заявка #{id}</b>",
+        "processed_by_admin": "Обработано администратором ID: {admin_id}",
+        
+        # Admin management
+        "btn_manage_admins": "👥 Управление админами",
+        "admin_management_title": "👥 <b>Управление администраторами</b>\n\n"
+                                  "Текущие администраторы:",
+        "admin_list_main": "👑 {user_id} (Главный админ)",
+        "admin_list_item": "👤 {user_id}",
+        "no_additional_admins": "Дополнительных администраторов нет.",
+        "btn_add_admin": "➕ Добавить админа",
+        "btn_remove_admin": "➖ Удалить админа",
+        "add_admin_prompt": "👤 <b>Добавить нового админа</b>\n\n"
+                            "Отправьте Telegram User ID нового администратора.\n\n"
+                            "💡 <i>Чтобы узнать User ID, используйте @getmy_idbot</i>",
+        "remove_admin_prompt": "👤 <b>Удалить админа</b>\n\n"
+                               "Выберите администратора для удаления:",
+        "admin_added": "✅ Администратор <b>{user_id}</b> успешно добавлен.",
+        "admin_removed": "✅ Администратор <b>{user_id}</b> удалён.",
+        "admin_already_exists": "⚠️ Этот пользователь уже является администратором.",
+        "admin_invalid_id": "⚠️ Неверный User ID. Введите корректное число.",
+        "admin_cannot_remove_main": "⚠️ Невозможно удалить главного администратора.",
+        "admin_not_found": "⚠️ Администратор не найден.",
     }
 }
 

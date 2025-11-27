@@ -3,18 +3,18 @@ Main entry point for the Telegram bot.
 """
 import asyncio
 import logging
-from typing import Callable, Dict, Any, Awaitable
+from typing import Any, Awaitable, Callable, Dict
 
-from aiogram import Bot, Dispatcher, BaseMiddleware
+from aiogram import BaseMiddleware, Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand, TelegramObject
 
 from config import BOT_TOKEN
-from db.database import init_db, get_session
+from db.database import get_session, init_db
+from handlers import admin_handlers, application_handlers, cancel_handler, user_handlers
 from middlewares.antiflood import AntiFloodMiddleware
-from handlers import common_handlers, application_handlers, admin_handlers, cancel_handler
 
 # Configure logging
 logging.basicConfig(
@@ -70,7 +70,7 @@ async def main():
     dp.callback_query.middleware(DatabaseMiddleware())
     
     # Register routers (order matters - cancel_handler should be last)
-    dp.include_router(common_handlers.router)
+    dp.include_router(user_handlers.router)
     dp.include_router(application_handlers.router)
     dp.include_router(admin_handlers.router)
     dp.include_router(cancel_handler.router)  # Last to catch cancel button

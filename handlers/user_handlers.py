@@ -1,15 +1,16 @@
 """
-Common handlers for user commands.
+User handlers for common commands.
 """
-from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
+from aiogram import F, Router
 from aiogram.filters import Command, CommandStart
-from aiogram.fsm.context import FSMContext
-from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.types import CallbackQuery, Message
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from config import ADMIN_ID
 from db.models import User
-from locales.strings import get_string, LANG_EN
-from keyboards.common_kb import get_language_keyboard, get_cancel_keyboard
+from keyboards.user_kb import get_language_keyboard
+from locales.strings import LANG_EN, get_string
 
 router = Router()
 
@@ -39,6 +40,10 @@ async def cmd_start(message: Message, session: AsyncSession):
     await message.answer(
         get_string(language, "welcome")
     )
+    
+    # Send admin reminder if user is admin
+    if user_id == ADMIN_ID:
+        await message.answer(get_string(language, "admin_welcome"))
 
 
 @router.message(Command("language"))

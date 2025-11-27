@@ -46,3 +46,13 @@ class Application(Base):
     # Relationship with user
     user = relationship("User", back_populates="applications")
 
+
+class Admin(Base):
+    """Admin model for storing additional administrators."""
+    __tablename__ = "admins"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, unique=True, nullable=False)
+    added_by = Column(Integer, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+

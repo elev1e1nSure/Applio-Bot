@@ -1,9 +1,8 @@
 """
 Database initialization and session management.
 """
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+
 from config import DB_FILE
 from db.models import Base
 

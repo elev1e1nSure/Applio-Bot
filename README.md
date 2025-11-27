@@ -1,5 +1,7 @@
 # Applio Bot
 
+[Читать на русском 🇷🇺](README.ru.md)
+
 A multi-language Telegram bot built with aiogram 3.x for handling application submissions with an admin panel for review and management.
 
 ## Features
@@ -50,8 +52,8 @@ A multi-language Telegram bot built with aiogram 3.x for handling application su
    APP_COOLDOWN_SECONDS=300
    ```
    
-   - `BOT_TOKEN`: Your Telegram bot token from [@BotFather](https://t.me/BotFather)
-   - `ADMIN_ID`: Your Telegram user ID (you can get it from [@userinfobot](https://t.me/userinfobot))
+   - `BOT_TOKEN`: Telegram bot token
+   - `ADMIN_ID`: Telegram user ID of the administrator
    - `DB_FILE`: Database filename (default: `applio_bot.db`)
    - `APP_COOLDOWN_SECONDS`: Cooldown time between submissions in seconds (default: 300 = 5 minutes)
 
@@ -67,6 +69,7 @@ A multi-language Telegram bot built with aiogram 3.x for handling application su
 - `/start` - Shows welcome message and instructions
 - `/apply` - Starts the application submission process
 - `/language` - Change language settings (EN/RU)
+- `/admin` - **[Admin Only]** Opens the administrative panel for review and management
 
 ### Application Process
 
@@ -98,33 +101,30 @@ When viewing an application, admin can:
 ```
 Applio/
 ├── db/
-│   ├── __init__.py
-│   ├── models.py          # Database models (User, Application)
-│   └── database.py        # Database initialization
+│   ├── database.py             # Database initialization and session management
+│   ├── manager.py              # CRUD helpers and anti-spam checks
+│   └── models.py               # SQLAlchemy models (User, Application)
 ├── handlers/
-│   ├── __init__.py
-│   ├── common_handlers.py  # Common commands (start, language)
-│   ├── application_handlers.py  # Application submission handlers
-│   └── admin_handlers.py  # Admin panel handlers
+│   ├── admin_handlers.py       # Admin panel logic (review, manage)
+│   ├── application_handlers.py # FSM flows for application submission
+│   ├── cancel_handler.py       # Global cancel button handler
+│   └── user_handlers.py        # User commands (/start, /language)
 ├── keyboards/
-│   ├── __init__.py
-│   ├── common_kb.py       # Common keyboards
-│   └── admin_kb.py        # Admin keyboards
-├── middlewares/
-│   ├── __init__.py
-│   └── antiflood.py       # Anti-spam middleware
-├── states/
-│   ├── __init__.py
-│   └── application_states.py  # FSM states
+│   ├── admin_kb.py             # Inline keyboards for admin workflow
+│   └── user_kb.py              # Reply/inline keyboards for users
 ├── locales/
-│   ├── __init__.py
-│   └── strings.py         # Localization strings
-├── config.py              # Configuration
-├── main.py                # Entry point
-├── requirements.txt       # Dependencies
-├── .gitignore            # Git ignore rules
-├── LICENSE               # MIT License
-└── README.md             # This file
+│   └── strings.py              # EN/RU localization dictionary
+├── middlewares/
+│   └── antiflood.py            # Cooldown middleware against spam
+├── states/
+│   └── application_states.py   # FSM states for application wizard
+├── config.py                   # Environment-based configuration
+├── main.py                     # Entry point (aiogram Dispatcher setup)
+├── requirements.txt            # Python dependencies
+├── .gitignore                  # Git ignore rules
+├── LICENSE                     # MIT License notice
+├── README.md                   # Project documentation (English)
+└── README.ru.md                # Project documentation (Russian)
 ```
 
 ## Configuration
@@ -135,14 +135,14 @@ All configuration is done through the `.env` file. The bot reads:
 - `DB_FILE`: Optional - Database filename (default: `applio_bot.db`)
 - `APP_COOLDOWN_SECONDS`: Optional - Cooldown time in seconds (default: 300)
 
-## Database
+## Data Management (SQLAlchemy)
 
-The bot uses SQLite database with two main tables:
+All persistence is handled via SQLAlchemy. The `db/manager.py` module exposes helpers for CRUD operations, session lifetime management, and anti-spam checks, while `db/models.py` defines the ORM models:
 
 - **users**: Stores user information (user_id, language, last_submission_time)
 - **applications**: Stores application data (id, user_id, name, contact, purpose, status)
 
-Database is automatically created on first run.
+The SQLite database is created automatically on the first run.
 
 ## Localization
 
@@ -162,7 +162,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! If you want to contribute, please fork the repository, create a dedicated feature branch, and submit a Pull Request for review.
 
 ## Support
 
