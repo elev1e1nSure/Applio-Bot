@@ -1,30 +1,33 @@
+"""
+Configuration module for the Telegram bot.
+Reads settings from environment variables.
+"""
 import os
 from dotenv import load_dotenv
 
-# Загружаем переменные окружения из .env файла (если он есть)
 load_dotenv()
 
-# ============ Bot Configuration ============
-# Токен бота, получаем из BotFather
-TOKEN = os.getenv('TOKEN', 'YOUR_TOKEN_HERE')
+# Bot settings
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID_STR = os.getenv("ADMIN_ID", "").strip()
 
-# ID администратора или список ID.
-# Сюда бот будет отправлять уведомления о новых заявках.
-# !!! Обязательно замените на реальный ID !!!
-ADMIN_ID = int(os.getenv('ADMIN_ID', '123456789')) # Ваш личный Telegram ID
+# Database settings
+DB_FILE = os.getenv("DB_FILE", "applio_bot.db")
 
-# ============ Database Configuration ============
-# По умолчанию используем SQLite
-DB_FILE = os.getenv('DB_FILE', 'applio_bot.db')
+# Anti-spam settings
+APP_COOLDOWN_SECONDS = int(os.getenv("APP_COOLDOWN_SECONDS", 300))  # 5 minutes default
 
-# Если планируется использовать PostgreSQL/другую СУБД:
-# DATABASE_URL = os.getenv('DATABASE_URL', f'sqlite:///{DB_FILE}')
+# Validate required settings
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN is not set in .env file")
 
+if not ADMIN_ID_STR:
+    raise ValueError("ADMIN_ID is not set in .env file")
 
-# ============ Anti-Spam Configuration ============
-# Защита от флуда: минимальный интервал между заявками от одного пользователя (в секундах)
-APP_COOLDOWN_SECONDS = int(os.getenv('APP_COOLDOWN_SECONDS', '3600')) # 1 час
+try:
+    ADMIN_ID = int(ADMIN_ID_STR)
+    if ADMIN_ID <= 0:
+        raise ValueError("ADMIN_ID must be a positive integer")
+except ValueError as e:
+    raise ValueError(f"ADMIN_ID must be a valid integer. Got: {ADMIN_ID_STR}") from e
 
-# ============ Application Limits ============
-# Максимальная длина поля для текстовых ответов
-MAX_TEXT_LENGTH = 500
